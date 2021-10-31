@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_mysqldb import MySQL
+from flask_mail import Mail, Message
 
 # Inicializaciones
 app = Flask(__name__)
@@ -11,8 +12,20 @@ app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'flascontacts'
 mysql = MySQL(app)
 
+# SMPT
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = 'antaresbar140@gmail.com'
+app.config['MAIL_PASSWORD'] = 'Antar3s_B4r'
+app.config['MAIL_DEFAULT_SERVER'] = 'antaresbar140@gmail.com'
+
+mail = Mail(app)
+
+
 # Configuraciones
-# app.secret_key = "mysecretkey"
+app.secret_key = "mysecretkey"
 
 # routes
 @app.route('/')
@@ -29,10 +42,16 @@ def add_contact():
         fullname = request.form['fullname']
         phone = request.form['phone']
         email = request.form['email']
+        hours = request.form['hours']
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO contacts (fullname, phone, email) VALUES (%s,%s,%s)", (fullname, phone, email))
+        cur.execute("INSERT INTO contacts (fullname, phone, email, hours) VALUES (%s,%s,%s, %s)", (fullname, phone, email, hours))
         mysql.connection.commit()
-        flash('Contact Added successfully')
+        flash('Reserva confirmada')
+        msg = Message('Reserva confirmada',
+                                        sender ='antaresbar140@gmail.com',
+                                        body='{} su reserva ha sido confirmada en el horario {}'.format(fullname,hours) ,
+                                        recipients= [request.form['email']])
+        mail.send(msg)
         return redirect(url_for('Index'))
 
 @app.route('/edit/<id>', methods = ['POST', 'GET'])
