@@ -1,5 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_mysqldb import MySQL
+import MySQLdb.cursors
+import re
 from flask_mail import Mail, Message
 
 # Inicializaciones
@@ -35,6 +37,59 @@ def Index():
     data = cur.fetchall()
     cur.close()
     return render_template('index.html', contacts = data)
+
+@app.route('/login', methods = ['GET','POST'])
+def login():
+    msg = ''
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        cr = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cr.execute(
+            'SELECT * FROM USERS WHERE username = % s AND password = % s',(username, password, )
+        )
+        user = cr.fetchone()
+        if user:
+            session['loggedin'] = True
+            session['id'] = user['id']
+            session['username'] = user['username'] 
+            msg = 'Bienvenido'
+            return render_template('index.html', msg = msg) 
+        else:
+            msg = 'Nombre de usuario o password incorrecto'
+    return render_template('login.html', msg = msg)
+
+@app.route('/logout')
+def logout():
+    session.pop('loggedin', None)
+    session.pop('id', None)
+    session.pop('username',None)
+    return redirect(url_for('login'))
+
+@app.route('/register', methods =['GET', 'POST']) 
+def register():
+    msg = ''
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        email = request.form['email']
+        cr = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cr.execute('SELECT * FROM users WHERE username = % s',(username, )) 
+        user = cr.fetchone()
+        if user:
+            msg = 'Usuario ya existente'
+        elif not re.match(r'[^@]+@[^@]+\.[^@]+', email): 
+            msg = 'Email invalido'
+        elif not username or not password or not email: 
+            msg = 'Por favor complete los campos'
+        else: 
+            cr.execute('INSERT INTO users VALUES(NULL, % s, % s, % s)',(username, password, email, )) 
+            mysql.connection.commit() 
+            msg = 'Se registro correctamente'
+    elif request.method == 'POST': 
+        msg = 'Por favor complete el formulario'
+    return render_template('register.html', msg = msg) 
+
 
 @app.route('/add_contact', methods=['POST'])
 def add_contact():
