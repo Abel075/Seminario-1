@@ -30,7 +30,9 @@ mail = Mail(app)
 app.secret_key = "mysecretkey"
 
 # routes
-@app.route('/')
+
+
+@app.route('/reservas')
 def Index():
     cur = mysql.connection.cursor()
     cur.execute('SELECT * FROM contacts')
@@ -38,7 +40,7 @@ def Index():
     cur.close()
     return render_template('index.html', contacts = data)
 
-@app.route('/login', methods = ['GET','POST'])
+@app.route('/', methods = ['GET','POST'])
 def login():
     msg = ''
     if request.method == 'POST':
@@ -53,18 +55,26 @@ def login():
             session['loggedin'] = True
             session['id'] = user['id']
             session['username'] = user['username'] 
-            msg = 'Bienvenido'
-            return render_template('index.html', msg = msg) 
+            # msg = 'Bienvenido'
+            success_message = 'Bienvenido {}'.format(username)
+            flash(success_message)
+            cur = mysql.connection.cursor()
+            cur.execute('SELECT * FROM contacts')
+            data = cur.fetchall()
+            cur.close()
+            return render_template('index.html',msg = msg,contacts = data) 
         else:
             msg = 'Nombre de usuario o password incorrecto'
     return render_template('login.html', msg = msg)
 
 @app.route('/logout')
 def logout():
-    session.pop('loggedin', None)
-    session.pop('id', None)
-    session.pop('username',None)
-    return redirect(url_for('login'))
+    # session.pop('loggedin', None)
+    # session.pop('id', None)
+    if 'username' in session:
+
+        session.pop('username',None)
+    return redirect(url_for('login.html'))
 
 @app.route('/register', methods =['GET', 'POST']) 
 def register():

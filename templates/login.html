@@ -1,7 +1,10 @@
-<html> 
+{% extends "layout.html" %}
+{% block body %}
+
+<!-- <html> 
     <head> 
         <meta charset="UTF-8"> 
-        <title> Login </title> 
+        <h1> Login </h1> 
         <link rel="stylesheet" href="../static/css/main.css">        
     </head> 
     <body> 
@@ -16,4 +19,31 @@
             </div> 
         </div> 
     </body> 
-</html> 
+</html>  -->
+
+
+<div class="container pt-5">
+    <form class="" action="{{ url_for('login')}}" method="post" autocomplete="off">
+    <div class="msg">{{ msg }}</div>    
+      <div class="row mb-3">
+        <label for="inputUsername" >Username</label>
+        <div class="mb-3 col-sm-8">
+          <input type="text" name="username" placeholder="Enter Your Username" class="form-control" id="inputUsername" required>
+        </div>
+      </div>
+      <div class="row mb-3">
+        <label for="inputPassword" >Password</label>
+        <div class="mb-3 col-sm-8">
+          <input type="password" name="password" placeholder="Enter Your Password" class="form-control" id="inputPassword" required>
+        </div>
+      </div>
+      
+      
+      <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+
+    <p class="worddark m-3">No te has registrado aun? <a class="worddark" href="{{ url_for('register')}}">Registrarse</a></p>
+    
+  </div>
+
+{% endblock %}

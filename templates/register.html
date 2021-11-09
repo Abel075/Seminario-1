@@ -1,19 +1,36 @@
-<html> 
-    <head> 
-        <meta charset="UTF-8"> 
-        <title> register </title> 
-        <link rel="stylesheet" href="../static/style.css">        
-    </head> 
-    <body> 
-        <h1>Registrarse</h1>
+
+
+{% extends "layout.html" %}
+
+{% block body %}
+
+<div class="container pt-5">
+     
+        
         <form action="{{ url_for('register')}}" method="post" autocomplete="off"> 
-            <div class="msg">{{ msg }}</div> 
-            <input type="text" name="username" placeholder="Enter Your Username" class="textbox" id="username" required></br></br> 
-            <input type="password" name="password" placeholder="Enter Your Password" class="textbox" id="password" required></br></br> 
-            <input type="email" name="email" placeholder="Enter Your Email ID" class="textbox" id="email" required></br></br> 
-            <input type="submit" class="btn" value="Register"> 
-              </form> 
-              <p class="worddark">Ya tenes una cuenta? <a class="worddark" href="{{ url_for('login')}}">Login here</a></p> 
-            </div> 
-    </body> 
-</html> 
+        <div class="msg">{{ msg }}</div> 
+        <div class="row mb-3">
+            <label for="username">Username</label>
+            <div class="mb-3 col-sm-8" >
+            <input type="text" name="username" placeholder="Enter Your Username" class="form-control" id="username" required>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label for="password">Password</label>
+            <div class="mb-3 col-sm-8">
+            <input type="password" name="password" placeholder="Enter Your Password" class="form-control" id="password" required>  
+            </div>
+        <div>
+        <div class="row mb-3">
+            <label for="email">Email</label>
+            <div class="mb-3 col-sm-8">
+            <input type="email" name="email" placeholder="Enter Your Email" class="form-control" id="email" required> 
+            </div>
+        </div>   
+            <input type="submit" class="btn btn-primary" value="Register"> 
+        </form> 
+        <p class="worddark m-2">Ya tenes una cuenta? <a class="worddark" href="{{ url_for('login')}}">Login</a></p> 
+         
+    
+</div>
+{% endblock %}
