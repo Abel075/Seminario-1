@@ -4,3 +4,7 @@
 
 ## Nuestro proyecto busca resolver esto a través de un sistema de reservaciones, donde  el mismo  usuario es el que podrá ver cuántos lugares disponibles quedan en el establecimiento, si quedan reservar uno, y si no poder saber que no hay espacio disponible.
 
+
+## Descargar la db flaskcontacts.sql e importarla a un sistema de gestion de base de datos.
+
+## Correr el servidor del sistema ejecutando el archivo App.py
