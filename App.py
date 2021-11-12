@@ -40,43 +40,46 @@ def Index():
     cur.close()
     return render_template('index.html', contacts = data)
 
-@app.route('/', methods = ['GET','POST'])
+
+
+
+@app.route('/', methods = ['GET','POST'])   
 def login():
     msg = ''
-    if request.method == 'POST':
+    if request.method == 'POST':                                #pedido de usuario a la DB
         username = request.form['username']
         password = request.form['password']
         cr = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         cr.execute(
             'SELECT * FROM USERS WHERE username = % s AND password = % s',(username, password, )
         )
-        user = cr.fetchone()
-        if user:
+        user = cr.fetchone()                 
+        if user:                                               #Verificacion de usuario
             session['loggedin'] = True
             session['id'] = user['id']
             session['username'] = user['username'] 
-            # msg = 'Bienvenido'
             success_message = 'Bienvenido {}'.format(username)
             flash(success_message)
             cur = mysql.connection.cursor()
             cur.execute('SELECT * FROM contacts')
             data = cur.fetchall()
             cur.close()
-            return render_template('index.html',msg = msg,contacts = data) 
+            return render_template('index.html',contacts = data) 
         else:
             msg = 'Nombre de usuario o password incorrecto'
     return render_template('login.html', msg = msg)
 
-@app.route('/logout')
+@app.route('/logout')                                          # logout del usuario
 def logout():
     # session.pop('loggedin', None)
     # session.pop('id', None)
-    if 'username' in session:
-
-        session.pop('username',None)
+    # if 'username' in session:
+        
+    #     session.pop('username',None)
+    session.clear()
     return redirect(url_for('login.html'))
 
-@app.route('/register', methods =['GET', 'POST']) 
+@app.route('/register', methods =['GET', 'POST'])              #Registro de nuevo usuario
 def register():
     msg = ''
     if request.method == 'POST':
@@ -101,7 +104,7 @@ def register():
     return render_template('register.html', msg = msg) 
 
 
-@app.route('/add_contact', methods=['POST'])
+@app.route('/add_contact', methods=['POST'])        #Agregado de reservas 
 def add_contact():
     if request.method == 'POST':
         fullname = request.form['fullname']
@@ -113,40 +116,42 @@ def add_contact():
         mysql.connection.commit()
         flash('Reserva confirmada')
         msg = Message('Reserva confirmada',
-                                        sender ='antaresbar140@gmail.com',
+                                        sender ='abeld.correa@gmail.com',
                                         body='{} su reserva ha sido confirmada en el horario {}'.format(fullname,hours) ,
                                         recipients= [request.form['email']])
         mail.send(msg)
         return redirect(url_for('Index'))
 
-@app.route('/edit/<id>', methods = ['POST', 'GET'])
-def get_contact(id):
+@app.route('/edit/<id>', methods = ['POST', 'GET'])       # busqueda de la reserva para edicion
+def get_contact(id): 
     cur = mysql.connection.cursor()
-    cur.execute('SELECT * FROM contacts WHERE id = %s', (id))
+    cur.execute('SELECT * FROM contacts WHERE id = {0}'.format(id))
     data = cur.fetchall()
     cur.close()
     print(data[0])
     return render_template('edit-contact.html', contact = data[0])
 
-@app.route('/update/<id>', methods=['POST'])
-def update_contact(id):
+@app.route('/update/<id>', methods=['POST'])              #Edicion de la reserva
+def update_contact(id): 
     if request.method == 'POST':
         fullname = request.form['fullname']
         phone = request.form['phone']
         email = request.form['email']
+        hours = request.form['hours']
         cur = mysql.connection.cursor()
         cur.execute("""
             UPDATE contacts
             SET fullname = %s,
                 email = %s,
-                phone = %s
+                phone = %s,
+                hours = %s
             WHERE id = %s
-        """, (fullname, email, phone, id))
+            """, (fullname, email, phone, hours, id))
         flash('Contact Updated Successfully')
         mysql.connection.commit()
         return redirect(url_for('Index'))
 
-@app.route('/delete/<string:id>', methods = ['POST','GET'])
+@app.route('/delete/<string:id>', methods = ['POST','GET'])    # Borrar la reserva
 def delete_contact(id):
     cur = mysql.connection.cursor()
     cur.execute('DELETE FROM contacts WHERE id = {0}'.format(id))
